@@ -13,12 +13,18 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
+/**
+ *
+ * @author Fabian Tamas
+ * @version 1.0
+ * @since 2018.04.01.
+ */
 public class DB {
 
     final String user = "admin";
     final String pass = "admin";
     String dbUrl;
-    
+        
     public DB() {
         url_be();
     }
@@ -47,8 +53,9 @@ public class DB {
      * Az adatokat betölti a táblába.
      * @param tbl betölti ebbe a táblába a terméket
      * @param cb
+     * @param cb4
      */
-    public void asztal_be(JTable tbl, JComboBox cb) {
+    public void asztal_be(JTable tbl, JComboBox cb, JComboBox cb4) {
         final DefaultTableModel tm = (DefaultTableModel)tbl.getModel();
         String s = "SELECT * FROM asztalok ORDER BY asztal;";
 
@@ -57,6 +64,7 @@ public class DB {
                 ResultSet eredmeny = parancs.executeQuery()) {
             tm.setRowCount(0);
             cb.removeAllItems();
+            cb4.removeAllItems();
             while (eredmeny.next()) {
                 Object sor[] = {
                     eredmeny.getInt("asztal"),
@@ -65,6 +73,7 @@ public class DB {
                 };
                 tm.addRow(sor);
                 cb.addItem(eredmeny.getInt("asztal"));
+                cb4.addItem(eredmeny.getInt("asztal"));
             }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, ex.getMessage());
@@ -80,20 +89,6 @@ public class DB {
      */
     private String levag(String s, int n) {
         return s.length() > n ? s.substring(0, n) : s;
-    }
-    
-     /**
-     * A szam metódus az s sztriget számmá alakítja és visszaadja.
-     * Ha nem sikerült 0-t ad vissza
-     * @param s - az átalakítandó szöveg
-     * @return - a szám, vagy nulla
-     */
-    private int szam(String s) {
-        try {
-            return Integer.parseInt(s);
-        } catch (NumberFormatException e) {
-            return 0;
-        }
     }
     
     /**
@@ -123,6 +118,14 @@ public class DB {
         return 0;
     }
     
+    /**
+     * Módosítja az adatbázisban az asztalszámot, a székek darabszámát
+     * és a helységet.
+     * @param tbl
+     * @param chr
+     * @param hly
+     * @return 
+     */
     public int asztal_modosit(int tbl, int chr, String hly) {
         if (tbl==0)
             return 0;
@@ -143,6 +146,10 @@ public class DB {
         return 0;
     }
     
+    /**
+     * Törli az adatbázisban az asztalt.
+     * @param tbl 
+     */
     public void asztal_torol(int tbl) {
         String s = "DELETE FROM asztalok WHERE asztal=?;";
         try (Connection kapcs = DriverManager.getConnection(dbUrl, user, pass);
@@ -185,7 +192,13 @@ public class DB {
         }
     }
     
-   
+   /**
+    * Hozzáadja az adatbázishoz az új tételt, annak árát és egységét.
+    * @param tetel
+    * @param egysegar
+    * @param egyseg
+    * @return 
+    */
     public int tetel_hozzaad(String tetel, int egysegar, String egyseg) {
         if (tetel.isEmpty())
             return 0;
@@ -202,6 +215,13 @@ public class DB {
         return 0;
     }
     
+    /**
+     * Módosítja az adatbázisban a tételt, annak árát és egységét.
+     * @param tetel
+     * @param egysegar
+     * @param egyseg
+     * @return 
+     */
     public int tetel_modosit(String tetel, int egysegar, String egyseg) {
         if (tetel.isEmpty())
             return 0;
@@ -219,6 +239,10 @@ public class DB {
         }        
     }
     
+    /**
+     * Törli az adatbázisból a tételt.
+     * @param tetelID 
+     */
     public void tetel_torol(int tetelID) {
         String s = "DELETE FROM tetelek WHERE tetelID=?;";
         try (Connection kapcs = DriverManager.getConnection(dbUrl, user, pass);
@@ -230,6 +254,11 @@ public class DB {
         }                
     }
     
+    /**
+     * Beolvassa a rendelések tábla rekordjait az ID szerinti sorrendben.
+     * Az adatokat betölti a táblába.
+     * @param tbl 
+     */
     public void rendeles_be(JTable tbl) {
         final DefaultTableModel tm = (DefaultTableModel)tbl.getModel();
         String s = "SELECT rendelesID, "
@@ -261,6 +290,13 @@ public class DB {
         }
     }
     
+    /**
+     * Hozzáadja az adatbázishoz a rendeléseket az asztal a tétel és a mennyiség adataival.
+     * @param asztal
+     * @param tetel
+     * @param mennyiseg
+     * @return 
+     */
     public int rendeles_hozzaad(int asztal, int tetel, int mennyiseg) {
         String s = "INSERT INTO rendelesek (asztal,tetelID,mennyiseg) VALUES(?,?,?);";
         try (Connection kapcs = DriverManager.getConnection(dbUrl, user, pass);
@@ -276,7 +312,7 @@ public class DB {
     }
 
     /**
-     *
+     * Módosítja az adatbázisban a rendeléseket az asztal a tétel és a mennyiség adataival.
      * @param rendelesID
      * @param asztal
      * @param tetel
@@ -299,6 +335,10 @@ public class DB {
         }        
     }
     
+    /**
+     * Törli a rendelést
+     * @param rendelesID 
+     */
     public void rendeles_torol(int rendelesID) {
         String s = "DELETE FROM rendelesek WHERE rendelesID=?;";
         try (Connection kapcs = DriverManager.getConnection(dbUrl, user, pass);
@@ -312,16 +352,14 @@ public class DB {
     
     public void szamla_be(JTable tbl) {
         final DefaultTableModel tm = (DefaultTableModel)tbl.getModel();
-        String s = "SELECT szamlaID, "
-                 + "rendelesek.rendelesID AS rnd, "
-                 + "tetelek.tetel AS ttl, "
-                 + "rendelesek.mennyiseg AS mny, "
+        String s = "SELECT rendelesID, "
+                 + "asztalok.asztal AS tbl, "
+                 + "tetelek.tetel AS prd, "
+                 + "mennyiseg, "
                  + "mennyiseg * tetelek.egysegar AS osszeg "
-                 + "vegosszeg "
-                 + "FROM szamla "
+                 + "FROM rendelesek "
                  + "JOIN asztalok ON rendelesek.asztal=asztalok.asztal "
-                 + "JOIN tetelek ON rendelesek.tetelID=tetelek.tetelID "
-                 + "Join rendelesek ON rendelesek.rendelesID=szamla.szamlaID;";
+                 + "JOIN tetelek ON rendelesek.tetelID=tetelek.tetelID;";
 
         try (Connection kapcs = DriverManager.getConnection(dbUrl,user,pass);
              PreparedStatement parancs = kapcs.prepareStatement(s);
@@ -329,34 +367,35 @@ public class DB {
             tm.setRowCount(0);
             while (eredmeny.next()) {
                 Object sor[] = {
-                    eredmeny.getInt("szamlaID"),
-                    eredmeny.getInt("rnd"),
-                    eredmeny.getString("ttl"),
-                    eredmeny.getInt("mny"),
-                    eredmeny.getInt("osszeg"),
-                    eredmeny.getInt("vegosszeg")    
+                    eredmeny.getInt("rendelesID"),
+                    eredmeny.getInt("tbl"),
+                    eredmeny.getString("prd"),
+                    eredmeny.getInt("mennyiseg"),
+                    eredmeny.getInt("osszeg")
                 };
                 tm.addRow(sor);
             }            
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, ex.getMessage());
-            System.exit(3);
+            System.exit(4);
         }
     }
+            
     
     
-    public int szamla_hozzaad(int asztalID, int tetelID, int mennyiseg, int vegosszeg) {
-        String s = "INSERT INTO szamla (asztalID,tetelID,mennyiseg,vegosszeg) VALUES(?,?,?,?);";
-        try (Connection kapcs = DriverManager.getConnection(dbUrl, user, pass);
-                PreparedStatement parancs = kapcs.prepareStatement(s)) {
-            parancs.setInt(1, asztalID);
-            parancs.setInt(2, tetelID);
-            parancs.setInt(3, mennyiseg);
-            parancs.setInt(4, vegosszeg);
-            return parancs.executeUpdate();
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, ex.getMessage());
-            return 0;
-        }
-    }
+    
+//    public int szamla_hozzaad(int asztal, int tetelID, int mennyiseg, int vegosszeg) {
+//        String s = "INSERT INTO szamla (asztal,tetelID,mennyiseg,vegosszeg) VALUES(?,?,?,?);";
+//        try (Connection kapcs = DriverManager.getConnection(dbUrl, user, pass);
+//                PreparedStatement parancs = kapcs.prepareStatement(s)) {
+//            parancs.setInt(1, asztal);
+//            parancs.setInt(2, tetelID);
+//            parancs.setInt(3, mennyiseg);
+//            parancs.setInt(4, vegosszeg);
+//            return parancs.executeUpdate();
+//        } catch (SQLException ex) {
+//            JOptionPane.showMessageDialog(null, ex.getMessage());
+//            return 0;
+//        }
+//    }
 }

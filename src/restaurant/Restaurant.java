@@ -1,38 +1,51 @@
 package restaurant;
 
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Scanner;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
- * @author FABIANT-PC 1.0
+ * @author Fabian Tamas
+ * @version 1.0
+ * @since 2018.04.01.
  */
 public class Restaurant extends javax.swing.JFrame {
     
     DB ab;
+    final String user = "admin";
+    final String pass = "admin";
+    String dbUrl;
     
     /**
-     * Creates new form Restaurant
+     * Creates new form Restaurant@exception 
      */
     public Restaurant() {
         initComponents();
         ImageIcon ikon = new ImageIcon(getClass().getResource("my16.png"));
         setIconImage(ikon.getImage());
         ab = new DB();
-        ab.asztal_be(tblTable_1, cbxTable_3);
+        ab.asztal_be(tblTable_1, cbxTable_3, cbxTable_4);
         ab.tetelek_be(tblProduct_1, cbxProduct_3);
         ab.rendeles_be(tblOrder);
+        ab.szamla_be(tblBill_1);
     }
     
     /**
-     * Ha kijelölünk egy sort az asztalok táblában, akkor kimásolja a beviteli mezőkbe.
+     * Sorok kijelölését a táblázatból a beviteli mezőkbe szúrja be.
+     * asztalok, tételek és rendelések tábláiból.
      */
     private void asztalok_tablabol() {
         int i = tblTable_1.getSelectedRow();
@@ -74,6 +87,11 @@ public class Restaurant extends javax.swing.JFrame {
             txtPrice_3.setText("");
     }
     
+    /**
+     * A már beolvasott tételek táblából beolvassa az azonosítókat.
+     * @param ttl
+     * @return 
+     */
     private int get_tetelID (String ttl) {
         int i = 0;
         while (!tblProduct_1.getValueAt(i, 1).equals(ttl))
@@ -81,6 +99,9 @@ public class Restaurant extends javax.swing.JFrame {
         return Integer.parseInt(tblProduct_1.getValueAt(i, 0).toString());
     }
     
+    /**
+     * A táblákban (asztalok, tételek, rendelés) kijelöli a legnagyobb ID-jű elemet.
+     */
     private void asztal_max_kijelol() {
         int sordb = tblTable_1.getRowCount();
         int max = 0;
@@ -126,6 +147,45 @@ public class Restaurant extends javax.swing.JFrame {
         rendelesek_tablabol();
     }
      
+    private void szamla_lekerdez(JTable tbl) {
+        int i = cbxTable_4.getSelectedIndex();
+        final DefaultTableModel tm = (DefaultTableModel)tbl.getModel();
+        String s = "SELECT rendelesID, "
+                 + "asztalok.asztal AS tbl, "
+                 + "tetelek.tetel AS prd, "
+                 + "mennyiseg, "
+                 + "mennyiseg * tetelek.egysegar AS osszeg "
+                 + "FROM rendelesek "
+                 + "JOIN asztalok ON rendelesek.asztal=asztalok.asztal "
+                 + "JOIN tetelek ON rendelesek.tetelID=tetelek.tetelID "
+                 + "WHERE rendelesek.asztal=" + i
+                 + "ORDER BY rendelesID;";
+
+        try (Connection kapcs = DriverManager.getConnection(dbUrl,user,pass);
+             PreparedStatement parancs = kapcs.prepareStatement(s);
+             ResultSet eredmeny = parancs.executeQuery()) {
+            tm.setRowCount(0);
+            while (eredmeny.next()) {
+                Object sor[] = {
+                    eredmeny.getInt("rendelesID"),
+                    eredmeny.getInt("tbl"),
+                    eredmeny.getString("prd"),
+                    eredmeny.getInt("mennyiseg"),
+                    eredmeny.getInt("osszeg")
+                };
+                tm.addRow(sor);
+            }            
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage());
+            System.exit(5);
+        }
+    }
+   
+    
+    /**
+     * Megkeresi a táblában a kért ID-jű elemet.
+     * @param tbl 
+     */
     private void asztal_kijelol(int tbl) {
         int sordb = tblTable_1.getRowCount();
         for (int i = 0; i < sordb; i++) {
@@ -138,6 +198,10 @@ public class Restaurant extends javax.swing.JFrame {
         }
     }
     
+    /**
+     * Megkeresi a táblában a kért ID-jű elemet.
+     * @param ttl 
+     */
     private void tetelek_kijelol(int ttl) {
         int sordb = tblProduct_1.getRowCount();
         for (int i = 0; i < sordb; i++) {
@@ -150,6 +214,9 @@ public class Restaurant extends javax.swing.JFrame {
         }
     }
     
+    /**
+     * A táblázat összeget tartalmazó oszlopának sorait adja össze.
+     */
     private void szumma() {
         int szum = 0;
         for (int i = 0; i < tblOrder.getRowCount(); i++)
@@ -157,11 +224,20 @@ public class Restaurant extends javax.swing.JFrame {
         txtSzum.setText(String.format("%,d Ft", szum));
     }
     
+    /**
+     * A modális "Súgó" dialógusablak meghívása.
+     */
     private void help() {
         Help h = new Help(this, true);
         h.setVisible(true);
     }
     
+    /**
+     * Az egységár kikeresése a beolvasott tételek táblából,
+     * az adott ID-jű tételhez.
+     * @param nev
+     * @return 
+     */
     private int egysegar(String nev) {
         int db = tblProduct_1.getRowCount();
         for (int i = 0; i < db; i++) {
@@ -172,12 +248,18 @@ public class Restaurant extends javax.swing.JFrame {
         return -1;
     }
     
+    /**
+     * A modális "Számla" dialógusablak meghívása.
+     */
     private void bill() {
         Bill b = new Bill(this, true);
         b.setVisible(true);
     }
     
-   private void mentes() {
+   /**
+    * A rendelés tábla külső txt fájlba mentése.
+    */
+    private void mentes() {
         if (fcSave.showSaveDialog(this)==JFileChooser.APPROVE_OPTION) {
             try (PrintWriter ki = new PrintWriter(fcSave.getSelectedFile(),"utf8")) {
                 int sordb = tblOrder.getRowCount();
@@ -290,6 +372,9 @@ public class Restaurant extends javax.swing.JFrame {
         txtTip_1 = new javax.swing.JTextField();
         jLabel18 = new javax.swing.JLabel();
         txtSzummall_1 = new javax.swing.JTextField();
+        cbxTable_4 = new javax.swing.JComboBox<>();
+        jLabel19 = new javax.swing.JLabel();
+        btnBill_4 = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jmFile = new javax.swing.JMenu();
         jmbOpen = new javax.swing.JMenuItem();
@@ -526,6 +611,11 @@ public class Restaurant extends javax.swing.JFrame {
                 tblOrderMouseClicked(evt);
             }
         });
+        tblOrder.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                tblOrderKeyReleased(evt);
+            }
+        });
         jScrollPane3.setViewportView(tblOrder);
         if (tblOrder.getColumnModel().getColumnCount() > 0) {
             tblOrder.getColumnModel().getColumn(0).setMinWidth(0);
@@ -737,6 +827,11 @@ public class Restaurant extends javax.swing.JFrame {
                 tblTable_1MouseClicked(evt);
             }
         });
+        tblTable_1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                tblTable_1KeyReleased(evt);
+            }
+        });
         jScrollPane1.setViewportView(tblTable_1);
 
         btnAdd_1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
@@ -933,6 +1028,11 @@ public class Restaurant extends javax.swing.JFrame {
                 tblProduct_1MouseClicked(evt);
             }
         });
+        tblProduct_1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                tblProduct_1KeyReleased(evt);
+            }
+        });
         jScrollPane2.setViewportView(tblProduct_1);
         if (tblProduct_1.getColumnModel().getColumnCount() > 0) {
             tblProduct_1.getColumnModel().getColumn(0).setMinWidth(0);
@@ -1111,6 +1211,21 @@ public class Restaurant extends javax.swing.JFrame {
 
         txtSzummall_1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
 
+        cbxTable_4.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        cbxTable_4.setToolTipText("");
+
+        jLabel19.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel19.setText("Asztalszám:");
+
+        btnBill_4.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        btnBill_4.setText("Számla");
+        btnBill_4.setToolTipText("");
+        btnBill_4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBill_4ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jtpBillLayout = new javax.swing.GroupLayout(jtpBill);
         jtpBill.setLayout(jtpBillLayout);
         jtpBillLayout.setHorizontalGroup(
@@ -1140,12 +1255,25 @@ public class Restaurant extends javax.swing.JFrame {
                             .addComponent(txtSzumm_1)
                             .addComponent(txtSzummall_1))))
                 .addContainerGap())
+            .addGroup(jtpBillLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel19)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(cbxTable_4, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnBill_4, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jtpBillLayout.setVerticalGroup(
             jtpBillLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jtpBillLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 397, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jtpBillLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cbxTable_4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel19)
+                    .addComponent(btnBill_4))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 366, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jtpBillLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel16)
@@ -1195,10 +1323,20 @@ public class Restaurant extends javax.swing.JFrame {
 
         jmbSave.setMnemonic('M');
         jmbSave.setText("Mentés");
+        jmbSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jmbSaveActionPerformed(evt);
+            }
+        });
         jmFile.add(jmbSave);
 
         jmbSaveas.setMnemonic('n');
         jmbSaveas.setText("Mentés másként");
+        jmbSaveas.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jmbSaveasActionPerformed(evt);
+            }
+        });
         jmFile.add(jmbSaveas);
         jmFile.add(jSeparator2);
 
@@ -1222,7 +1360,10 @@ public class Restaurant extends javax.swing.JFrame {
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
-
+/**
+ * Az ikonokhoz rendeli hozzá a megfelelő munkalapot.
+ * @param evt 
+ */
     private void btnTableActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTableActionPerformed
         btn.setSelectedIndex(1);
     }//GEN-LAST:event_btnTableActionPerformed
@@ -1247,6 +1388,10 @@ public class Restaurant extends javax.swing.JFrame {
 //        megnyitas();
     }//GEN-LAST:event_jmbOpenActionPerformed
 
+    /**
+     * A tételek táblából törli a kijelölt sort.
+     * @param evt 
+     */
     private void btn_Del_2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_Del_2ActionPerformed
         int i = tblProduct_1.getSelectedRow();
         if (i == -1) return;
@@ -1254,6 +1399,10 @@ public class Restaurant extends javax.swing.JFrame {
         ab.tetelek_be(tblProduct_1, cbxProduct_3);
     }//GEN-LAST:event_btn_Del_2ActionPerformed
 
+    /**
+     * A tételek táblában módosítja a kijelölt sort.
+     * @param evt 
+     */
     private void btnMod_2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMod_2ActionPerformed
         int i = tblProduct_1.getSelectedRow();
         if (i == -1) return;
@@ -1263,6 +1412,10 @@ public class Restaurant extends javax.swing.JFrame {
         tetelek_kijelol(prc);
     }//GEN-LAST:event_btnMod_2ActionPerformed
 
+    /**
+     * A tételek táblába beszúrja a beviteli mezőbe írt adatokat.
+     * @param evt 
+     */
     private void btnAdd_2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd_2ActionPerformed
         ab.tetel_hozzaad(txtProduct.getText(), Integer.parseInt(txtPrice.getText()), txtUnit.getText());
         ab.tetelek_be(tblProduct_1, cbxProduct_3);
@@ -1271,40 +1424,64 @@ public class Restaurant extends javax.swing.JFrame {
         txtProduct.selectAll();
     }//GEN-LAST:event_btnAdd_2ActionPerformed
 
+    /**
+     * Egérkattintásra kimásolja az adott sort a beviteli mezőkbe.
+     * @param evt 
+     */
     private void tblProduct_1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblProduct_1MouseClicked
         tetelek_tablabol();
     }//GEN-LAST:event_tblProduct_1MouseClicked
 
+    /**
+     * Az asztalok táblából törli a kijelölt sort.
+     * @param evt 
+     */
     private void btnDel_1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDel_1ActionPerformed
         int i = tblTable_1.getSelectedRow();
         if (i == -1) return;
         ab.asztal_torol(Integer.parseInt(tblTable_1.getValueAt(i, 0).toString()));
-        ab.asztal_be(tblTable_1, cbxTable_3);
+        ab.asztal_be(tblTable_1, cbxTable_3, cbxTable_4);
     }//GEN-LAST:event_btnDel_1ActionPerformed
 
+    /**
+     * Az asztalok táblában módosítja a kijelölt sort.
+     * @param evt 
+     */
     private void btnMod_1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMod_1ActionPerformed
         int i = tblTable_1.getSelectedRow();
         if (i == -1) return;
         int tbl = Integer.parseInt(tblTable_1.getValueAt(i, 0).toString());
         int chr = Integer.parseInt(tblTable_1.getValueAt(i, 1).toString());
         if (ab.asztal_modosit(tbl, chr, txtPlace.getText())>0) {
-            ab.asztal_be(tblTable_1, cbxTable_3);
+            ab.asztal_be(tblTable_1, cbxTable_3, cbxTable_4);
             asztal_kijelol(tbl);
         }
     }//GEN-LAST:event_btnMod_1ActionPerformed
 
+    /**
+     * Az asztalok táblába beszúrja a beviteli mezőbe írt adatokat.
+     * @param evt 
+     */
     private void btnAdd_1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd_1ActionPerformed
         ab.asztal_hozzaad(Integer.parseInt(txtTable.getText()), Integer.parseInt(txtChair.getText()),txtPlace.getText());
-        ab.asztal_be(tblTable_1, cbxTable_3);
+        ab.asztal_be(tblTable_1, cbxTable_3, cbxTable_4);
         asztal_max_kijelol();
         txtTable.requestFocus();
         txtTable.selectAll();
     }//GEN-LAST:event_btnAdd_1ActionPerformed
 
+    /**
+     * Egérkattintásra kimásolja az adott sort a beviteli mezőkbe.
+     * @param evt 
+     */
     private void tblTable_1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblTable_1MouseClicked
         asztalok_tablabol();
     }//GEN-LAST:event_tblTable_1MouseClicked
 
+    /**
+     * A metódusok (szumma, mentes, bill) hozzárendelése a gombokhoz.
+     * @param evt 
+     */
     private void btnCountActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCountActionPerformed
         szumma();
     }//GEN-LAST:event_btnCountActionPerformed
@@ -1317,6 +1494,10 @@ public class Restaurant extends javax.swing.JFrame {
         bill();
     }//GEN-LAST:event_btnBill_1ActionPerformed
 
+    /**
+     * A rendelések táblából törli a kijelölt sort.
+     * @param evt 
+     */
     private void btnDel_3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDel_3ActionPerformed
         int i = tblOrder.getSelectedRow();
         if (i == -1) return;
@@ -1327,6 +1508,10 @@ public class Restaurant extends javax.swing.JFrame {
         szumma();
     }//GEN-LAST:event_btnDel_3ActionPerformed
 
+    /**
+     * A rendelések táblában módosítja a kijelölt sort.
+     * @param evt 
+     */
     private void btnMod_3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMod_3ActionPerformed
         int i = tblOrder.getSelectedRow();
         if (i == -1) return;
@@ -1343,6 +1528,10 @@ public class Restaurant extends javax.swing.JFrame {
         szumma();
     }//GEN-LAST:event_btnMod_3ActionPerformed
 
+    /**
+     * A rendelések táblába beszúrja a beviteli mezőbe írt adatokat.
+     * @param evt 
+     */
     private void btnAdd_3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd_3ActionPerformed
         int tbl = Integer.parseInt(cbxTable_3.getSelectedItem().toString());
         String ttl = cbxProduct_3.getSelectedItem().toString();
@@ -1356,15 +1545,63 @@ public class Restaurant extends javax.swing.JFrame {
         szumma();
     }//GEN-LAST:event_btnAdd_3ActionPerformed
 
+    /**
+     * Egérkattintásra kimásolja az adott sort a beviteli mezőkbe.
+     * @param evt 
+     */
     private void tblOrderMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblOrderMouseClicked
         rendelesek_tablabol();
     }//GEN-LAST:event_tblOrderMouseClicked
 
+    /**
+     * Bemásolja a tételhez tartozó egységárat a hozzá tartozó beviteli mezőbe.
+     * @param evt 
+     */
     private void cbxProduct_3ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbxProduct_3ItemStateChanged
         String nev = (cbxProduct_3.getSelectedItem().toString());
         int ea = egysegar(nev);
         txtPrice_3.setText(ea+"");
     }//GEN-LAST:event_cbxProduct_3ItemStateChanged
+
+    private void jmbSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmbSaveActionPerformed
+        mentes();
+    }//GEN-LAST:event_jmbSaveActionPerformed
+
+    private void jmbSaveasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmbSaveasActionPerformed
+        mentes();
+    }//GEN-LAST:event_jmbSaveasActionPerformed
+
+    /**
+     * A táblázatban a billentyűk használatának konfigurálása.
+     * @param evt 
+     */
+    private void tblProduct_1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tblProduct_1KeyReleased
+        if (evt.getKeyCode() == KeyEvent.VK_UP 
+                || evt.getKeyCode() == KeyEvent.VK_DOWN
+                || evt.getKeyCode() == KeyEvent.VK_PAGE_UP
+                || evt.getKeyCode() == KeyEvent.VK_PAGE_DOWN)
+            tetelek_tablabol();
+    }//GEN-LAST:event_tblProduct_1KeyReleased
+
+    private void tblTable_1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tblTable_1KeyReleased
+        if (evt.getKeyCode() == KeyEvent.VK_UP 
+                || evt.getKeyCode() == KeyEvent.VK_DOWN
+                || evt.getKeyCode() == KeyEvent.VK_PAGE_UP
+                || evt.getKeyCode() == KeyEvent.VK_PAGE_DOWN)
+            asztalok_tablabol();
+    }//GEN-LAST:event_tblTable_1KeyReleased
+
+    private void tblOrderKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tblOrderKeyReleased
+        if (evt.getKeyCode() == KeyEvent.VK_UP 
+                || evt.getKeyCode() == KeyEvent.VK_DOWN
+                || evt.getKeyCode() == KeyEvent.VK_PAGE_UP
+                || evt.getKeyCode() == KeyEvent.VK_PAGE_DOWN)
+            rendelesek_tablabol();
+    }//GEN-LAST:event_tblOrderKeyReleased
+
+    private void btnBill_4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBill_4ActionPerformed
+        szamla_lekerdez(tblBill_1);
+    }//GEN-LAST:event_btnBill_4ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1385,6 +1622,7 @@ public class Restaurant extends javax.swing.JFrame {
     private javax.swing.JButton btnAdd_3;
     private javax.swing.JButton btnBill;
     private javax.swing.JButton btnBill_1;
+    private javax.swing.JButton btnBill_4;
     private javax.swing.JButton btnCount;
     private javax.swing.JButton btnDel_1;
     private javax.swing.JButton btnDel_3;
@@ -1402,6 +1640,7 @@ public class Restaurant extends javax.swing.JFrame {
     private javax.swing.JButton btn_Del_2;
     private javax.swing.JComboBox<String> cbxProduct_3;
     private javax.swing.JComboBox<String> cbxTable_3;
+    private javax.swing.JComboBox<String> cbxTable_4;
     private javax.swing.JFileChooser fcOpen;
     private javax.swing.JFileChooser fcSave;
     private javax.swing.JButton jButton1;
@@ -1418,6 +1657,7 @@ public class Restaurant extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
+    private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
