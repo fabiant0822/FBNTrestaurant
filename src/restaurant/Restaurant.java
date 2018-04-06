@@ -4,17 +4,11 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.time.LocalDateTime;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.JTable;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -25,9 +19,6 @@ import javax.swing.table.DefaultTableModel;
 public class Restaurant extends javax.swing.JFrame {
     
     DB ab;
-    final String user = "admin";
-    final String pass = "admin";
-    String dbUrl;
     
     /**
      * Creates new form Restaurant@exception 
@@ -41,6 +32,9 @@ public class Restaurant extends javax.swing.JFrame {
         ab.tetelek_be(tblProduct_1, cbxProduct_3);
         ab.rendeles_be(tblOrder);
         ab.szamla_be(tblBill_1);
+        String s = LocalDateTime.now().toString();
+        String date = s.substring(0, 10) + " " + s.substring(11, 19);
+        txtDate_1.setText(date);
     }
     
     /**
@@ -146,41 +140,6 @@ public class Restaurant extends javax.swing.JFrame {
         tblOrder.setRowSelectionInterval(sor, sor);
         rendelesek_tablabol();
     }
-     
-    private void szamla_lekerdez(JTable tbl) {
-        int i = cbxTable_4.getSelectedIndex();
-        final DefaultTableModel tm = (DefaultTableModel)tbl.getModel();
-        String s = "SELECT rendelesID, "
-                 + "asztalok.asztal AS tbl, "
-                 + "tetelek.tetel AS prd, "
-                 + "mennyiseg, "
-                 + "mennyiseg * tetelek.egysegar AS osszeg "
-                 + "FROM rendelesek "
-                 + "JOIN asztalok ON rendelesek.asztal=asztalok.asztal "
-                 + "JOIN tetelek ON rendelesek.tetelID=tetelek.tetelID "
-                 + "WHERE rendelesek.asztal=" + i
-                 + "ORDER BY rendelesID;";
-
-        try (Connection kapcs = DriverManager.getConnection(dbUrl,user,pass);
-             PreparedStatement parancs = kapcs.prepareStatement(s);
-             ResultSet eredmeny = parancs.executeQuery()) {
-            tm.setRowCount(0);
-            while (eredmeny.next()) {
-                Object sor[] = {
-                    eredmeny.getInt("rendelesID"),
-                    eredmeny.getInt("tbl"),
-                    eredmeny.getString("prd"),
-                    eredmeny.getInt("mennyiseg"),
-                    eredmeny.getInt("osszeg")
-                };
-                tm.addRow(sor);
-            }            
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(null, ex.getMessage());
-            System.exit(5);
-        }
-    }
-   
     
     /**
      * Megkeresi a táblában a kért ID-jű elemet.
@@ -224,6 +183,25 @@ public class Restaurant extends javax.swing.JFrame {
         txtSzum.setText(String.format("%,d Ft", szum));
     }
     
+     private void szumma_bill() {
+        int szum = 0;
+        for (int i = 0; i < tblBill_1.getRowCount(); i++)
+            szum += Integer.parseInt(tblBill_1.getValueAt(i, 4).toString());
+        txtSzum_1.setText(String.format("%,d Ft", szum));
+        int tp = (int)Math.round(0.1 * szum);
+        txtTip_1.setText(String.format("%,d Ft", tp));
+        int br = (int)Math.round(szum + tp);
+        txtSzumall_1.setText(String.format("%,d Ft", br));
+    }
+    
+     /**
+      * Kiválasztja a comboBox-ban megadott asztalt. 
+      */
+//     public void kivalaszt() {
+//         int t = Integer.parseInt(cbxTable_4.getSelectedItem().toString());
+//         txtTeszt.setText(String.format("%,d", t));
+//     }
+     
     /**
      * A modális "Súgó" dialógusablak meghívása.
      */
@@ -360,21 +338,22 @@ public class Restaurant extends javax.swing.JFrame {
         btnAdd_2 = new javax.swing.JButton();
         btnMod_2 = new javax.swing.JButton();
         btn_Del_2 = new javax.swing.JButton();
-        jtpReport = new javax.swing.JPanel();
         jtpBill = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         tblBill_1 = new javax.swing.JTable();
         jLabel15 = new javax.swing.JLabel();
         txtDate_1 = new javax.swing.JTextField();
         jLabel16 = new javax.swing.JLabel();
-        txtSzumm_1 = new javax.swing.JTextField();
+        txtSzum_1 = new javax.swing.JTextField();
         jLabel17 = new javax.swing.JLabel();
         txtTip_1 = new javax.swing.JTextField();
         jLabel18 = new javax.swing.JLabel();
-        txtSzummall_1 = new javax.swing.JTextField();
+        txtSzumall_1 = new javax.swing.JTextField();
         cbxTable_4 = new javax.swing.JComboBox<>();
         jLabel19 = new javax.swing.JLabel();
         btnBill_4 = new javax.swing.JButton();
+        txtTeszt = new javax.swing.JTextField();
+        jLabel20 = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jmFile = new javax.swing.JMenu();
         jmbOpen = new javax.swing.JMenuItem();
@@ -1141,22 +1120,6 @@ public class Restaurant extends javax.swing.JFrame {
 
         btn.addTab("Étlap/Itallap", jtpProduct);
 
-        jtpReport.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        jtpReport.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-
-        javax.swing.GroupLayout jtpReportLayout = new javax.swing.GroupLayout(jtpReport);
-        jtpReport.setLayout(jtpReportLayout);
-        jtpReportLayout.setHorizontalGroup(
-            jtpReportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 623, Short.MAX_VALUE)
-        );
-        jtpReportLayout.setVerticalGroup(
-            jtpReportLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 538, Short.MAX_VALUE)
-        );
-
-        btn.addTab("Kimutatás", jtpReport);
-
         jtpBill.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         jtpBill.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
 
@@ -1197,8 +1160,8 @@ public class Restaurant extends javax.swing.JFrame {
         jLabel16.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel16.setText("Össz. fogyasztás:");
 
-        txtSzumm_1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-        txtSzumm_1.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+        txtSzum_1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        txtSzum_1.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
 
         jLabel17.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel17.setText("Szervízdíj (10%):");
@@ -1209,10 +1172,16 @@ public class Restaurant extends javax.swing.JFrame {
         jLabel18.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel18.setText("Összesen:");
 
-        txtSzummall_1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        txtSzumall_1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        txtSzumall_1.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
 
         cbxTable_4.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         cbxTable_4.setToolTipText("");
+        cbxTable_4.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                cbxTable_4ItemStateChanged(evt);
+            }
+        });
 
         jLabel19.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         jLabel19.setText("Asztalszám:");
@@ -1225,6 +1194,11 @@ public class Restaurant extends javax.swing.JFrame {
                 btnBill_4ActionPerformed(evt);
             }
         });
+
+        txtTeszt.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+
+        jLabel20.setText("teszt:");
+        jLabel20.setToolTipText("");
 
         javax.swing.GroupLayout jtpBillLayout = new javax.swing.GroupLayout(jtpBill);
         jtpBill.setLayout(jtpBillLayout);
@@ -1252,8 +1226,8 @@ public class Restaurant extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jtpBillLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(txtTip_1)
-                            .addComponent(txtSzumm_1)
-                            .addComponent(txtSzummall_1))))
+                            .addComponent(txtSzum_1)
+                            .addComponent(txtSzumall_1))))
                 .addContainerGap())
             .addGroup(jtpBillLayout.createSequentialGroup()
                 .addContainerGap()
@@ -1262,7 +1236,11 @@ public class Restaurant extends javax.swing.JFrame {
                 .addComponent(cbxTable_4, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnBill_4, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel20)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(txtTeszt, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(43, 43, 43))
         );
         jtpBillLayout.setVerticalGroup(
             jtpBillLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1271,13 +1249,15 @@ public class Restaurant extends javax.swing.JFrame {
                 .addGroup(jtpBillLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cbxTable_4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel19)
-                    .addComponent(btnBill_4))
+                    .addComponent(btnBill_4)
+                    .addComponent(txtTeszt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel20))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 366, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jtpBillLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel16)
-                    .addComponent(txtSzumm_1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtSzum_1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtDate_1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel15))
                 .addGap(18, 18, 18)
@@ -1287,7 +1267,7 @@ public class Restaurant extends javax.swing.JFrame {
                 .addGap(16, 16, 16)
                 .addGroup(jtpBillLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel18)
-                    .addComponent(txtSzummall_1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtSzumall_1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -1600,8 +1580,12 @@ public class Restaurant extends javax.swing.JFrame {
     }//GEN-LAST:event_tblOrderKeyReleased
 
     private void btnBill_4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBill_4ActionPerformed
-        szamla_lekerdez(tblBill_1);
+        szumma_bill();
     }//GEN-LAST:event_btnBill_4ActionPerformed
+
+    private void cbxTable_4ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbxTable_4ItemStateChanged
+//        kivalaszt();
+    }//GEN-LAST:event_cbxTable_4ItemStateChanged
 
     /**
      * @param args the command line arguments
@@ -1659,6 +1643,7 @@ public class Restaurant extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -1684,7 +1669,6 @@ public class Restaurant extends javax.swing.JFrame {
     private javax.swing.JPanel jtpOrder;
     private javax.swing.JPanel jtpProduct;
     private javax.swing.JPanel jtpProfile;
-    private javax.swing.JPanel jtpReport;
     private javax.swing.JPanel jtpTable;
     private javax.swing.JTable tblBill_1;
     private javax.swing.JTable tblOrder;
@@ -1701,9 +1685,10 @@ public class Restaurant extends javax.swing.JFrame {
     private javax.swing.JTextField txtPrice_3;
     private javax.swing.JTextField txtProduct;
     private javax.swing.JTextField txtSzum;
-    private javax.swing.JTextField txtSzumm_1;
-    private javax.swing.JTextField txtSzummall_1;
+    private javax.swing.JTextField txtSzum_1;
+    private javax.swing.JTextField txtSzumall_1;
     private javax.swing.JTextField txtTable;
+    private javax.swing.JTextField txtTeszt;
     private javax.swing.JTextField txtTip_1;
     private javax.swing.JTextField txtUnit;
     // End of variables declaration//GEN-END:variables
