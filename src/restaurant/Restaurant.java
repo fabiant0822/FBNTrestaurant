@@ -197,10 +197,10 @@ public class Restaurant extends javax.swing.JFrame {
      /**
       * Kiválasztja a comboBox-ban megadott asztalt. 
       */
-//     public void kivalaszt() {
-//         int t = Integer.parseInt(cbxTable_4.getSelectedItem().toString());
-//         txtTeszt.setText(String.format("%,d", t));
-//     }
+     public void kivalaszt() {
+         int asz = Integer.parseInt(cbxTable_4.getSelectedItem().toString());
+         txtTeszt.setText(String.format("%,d", asz));
+     }
      
     /**
      * A modális "Súgó" dialógusablak meghívása.
@@ -229,10 +229,10 @@ public class Restaurant extends javax.swing.JFrame {
     /**
      * A modális "Számla" dialógusablak meghívása.
      */
-    private void bill() {
-        Bill b = new Bill(this, true);
-        b.setVisible(true);
-    }
+//    private void bill() {
+//        Bill b = new Bill(this, true);
+//        b.setVisible(true);
+//    }
     
    /**
     * A rendelés tábla külső txt fájlba mentése.
@@ -383,7 +383,7 @@ public class Restaurant extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("FBNT Restaurant");
         setAlwaysOnTop(true);
-        setPreferredSize(new java.awt.Dimension(800, 640));
+        setPreferredSize(new java.awt.Dimension(800, 680));
         setSize(new java.awt.Dimension(800, 640));
         getContentPane().setLayout(new java.awt.GridBagLayout());
 
@@ -487,6 +487,11 @@ public class Restaurant extends javax.swing.JFrame {
         btnBill.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         btnBill.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnBill.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnBill.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnBillActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
         gridBagConstraints.gridy = 4;
@@ -1471,7 +1476,7 @@ public class Restaurant extends javax.swing.JFrame {
     }//GEN-LAST:event_btnSave_1ActionPerformed
 
     private void btnBill_1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBill_1ActionPerformed
-        bill();
+        btn.setSelectedIndex(4);
     }//GEN-LAST:event_btnBill_1ActionPerformed
 
     /**
@@ -1500,6 +1505,9 @@ public class Restaurant extends javax.swing.JFrame {
         int p = get_tetelID(ttl);
         int rid = Integer.parseInt(tblOrder.getValueAt(i, 0).toString());
         int n = ab.rendeles_modosit(rid, tbl, p, Integer.parseInt(txtPiece_3.getText()));
+        String nev = (cbxProduct_3.getSelectedItem().toString());
+        int ea = egysegar(nev);
+        txtPrice_3.setText(ea+"");
         if (n > 0) {
             ab.rendeles_be(tblOrder);
             rendeles_max_kijelol();
@@ -1517,6 +1525,9 @@ public class Restaurant extends javax.swing.JFrame {
         String ttl = cbxProduct_3.getSelectedItem().toString();
         int p = get_tetelID(ttl);
         int n = ab.rendeles_hozzaad(tbl, p, Integer.parseInt(txtPiece_3.getText()));
+        String nev = (cbxProduct_3.getSelectedItem().toString());
+        int ea = egysegar(nev);
+        txtPrice_3.setText(ea+"");
         if (n > 0) {
             ab.rendeles_be(tblOrder);
             rendeles_max_kijelol();
@@ -1538,9 +1549,9 @@ public class Restaurant extends javax.swing.JFrame {
      * @param evt 
      */
     private void cbxProduct_3ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbxProduct_3ItemStateChanged
-        String nev = (cbxProduct_3.getSelectedItem().toString());
-        int ea = egysegar(nev);
-        txtPrice_3.setText(ea+"");
+//        String nev = (cbxProduct_3.getSelectedItem().toString());
+//        int ea = egysegar(nev);
+//        txtPrice_3.setText(ea+"");
     }//GEN-LAST:event_cbxProduct_3ItemStateChanged
 
     private void jmbSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmbSaveActionPerformed
@@ -1580,12 +1591,18 @@ public class Restaurant extends javax.swing.JFrame {
     }//GEN-LAST:event_tblOrderKeyReleased
 
     private void btnBill_4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBill_4ActionPerformed
-        szumma_bill();
+//        int asz = Integer.parseInt(cbxTable_4.getSelectedItem().toString());
+//        ab.szamla_lekerdez(tblBill_1, asz);
+//        szumma_bill();
     }//GEN-LAST:event_btnBill_4ActionPerformed
 
     private void cbxTable_4ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbxTable_4ItemStateChanged
-//        kivalaszt();
+        kivalaszt();
     }//GEN-LAST:event_cbxTable_4ItemStateChanged
+
+    private void btnBillActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBillActionPerformed
+        btn.setSelectedIndex(4);
+    }//GEN-LAST:event_btnBillActionPerformed
 
     /**
      * @param args the command line arguments

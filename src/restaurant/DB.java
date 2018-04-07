@@ -381,38 +381,38 @@ public class DB {
         }
     }
             
-//    private void szamla_lekerdez(JTable tbl) {
-//        final DefaultTableModel tm = (DefaultTableModel)tbl.getModel();
-//        String s = "SELECT rendelesID, "
-//                 + "asztalok.asztal AS tbl, "
-//                 + "tetelek.tetel AS prd, "
-//                 + "mennyiseg, "
-//                 + "mennyiseg * tetelek.egysegar AS osszeg "
-//                 + "FROM rendelesek "
-//                 + "JOIN asztalok ON rendelesek.asztal=asztalok.asztal "
-//                 + "JOIN tetelek ON rendelesek.tetelID=tetelek.tetelID "
-//                 + "WHERE rendelesek.asztal=" + t
-//                 + "ORDER BY rendelesID;";
-//
-//        try (Connection kapcs = DriverManager.getConnection(dbUrl,user,pass);
-//             PreparedStatement parancs = kapcs.prepareStatement(s);
-//             ResultSet eredmeny = parancs.executeQuery()) {
-//            tm.setRowCount(0);
-//            while (eredmeny.next()) {
-//                Object sor[] = {
-//                    eredmeny.getInt("rendelesID"),
-//                    eredmeny.getInt("tbl"),
-//                    eredmeny.getString("prd"),
-//                    eredmeny.getInt("mennyiseg"),
-//                    eredmeny.getInt("osszeg")
-//                };
-//                tm.addRow(sor);
-//            }            
-//        } catch (SQLException ex) {
-//            JOptionPane.showMessageDialog(null, ex.getMessage());
-//            System.exit(5);
-//        }
-//    }
+    public void szamla_lekerdez(JTable tbl, int asz) {
+        final DefaultTableModel tm = (DefaultTableModel)tbl.getModel();
+        String s = "SELECT rendelesID, "
+                 + "asztalok.asztal AS tbl, "
+                 + "tetelek.tetel AS prd, "
+                 + "mennyiseg, "
+                 + "mennyiseg * tetelek.egysegar AS osszeg "
+                 + "FROM rendelesek "
+                 + "JOIN asztalok ON rendelesek.asztal=asztalok.asztal "
+                 + "JOIN tetelek ON rendelesek.tetelID=tetelek.tetelID "
+                 + "WHERE rendelesek.asztal=" + asz
+                 + "ORDER BY rendelesID;";
+
+        try (Connection kapcs = DriverManager.getConnection(dbUrl,user,pass);
+             PreparedStatement parancs = kapcs.prepareStatement(s);
+             ResultSet eredmeny = parancs.executeQuery()) {
+            tm.setRowCount(0);
+            while (eredmeny.next()) {
+                Object sor[] = {
+                    eredmeny.getInt("rendelesID"),
+                    eredmeny.getInt("tbl"),
+                    eredmeny.getString("prd"),
+                    eredmeny.getInt("mennyiseg"),
+                    eredmeny.getInt("osszeg")
+                };
+                tm.addRow(sor);
+            }            
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage());
+            System.exit(5);
+        }
+    }
     
     
 //    public int szamla_hozzaad(int asztal, int tetelID, int mennyiseg, int vegosszeg) {
@@ -429,4 +429,5 @@ public class DB {
 //            return 0;
 //        }
 //    }
+
 }
