@@ -102,7 +102,8 @@ public class DB {
     public int asztal_hozzaad(int tbl, int chr, String hly) {
         if (tbl==0)
             return 0;
-        String s = "INSERT INTO asztalok (asztal, szek, helyseg) VALUES(?,?,?);";
+        String s = "INSERT INTO asztalok (asztal, szek, helyseg) "
+                + "VALUES(?,?,?);";
         try (Connection kapcs = DriverManager.getConnection(dbUrl, user, pass);
                 PreparedStatement parancs = kapcs.prepareStatement(s)) {
             parancs.setInt(0, tbl);
@@ -147,7 +148,7 @@ public class DB {
     }
     
     /**
-     * Törli az adatbázisban az asztalt.
+     * Töröli az adatbázisban az asztalt.
      * @param tbl 
      */
     public void asztal_torol(int tbl) {
@@ -298,7 +299,8 @@ public class DB {
      * @return 
      */
     public int rendeles_hozzaad(int asztal, int tetel, int mennyiseg) {
-        String s = "INSERT INTO rendelesek (asztal,tetelID,mennyiseg) VALUES(?,?,?);";
+        String s = "INSERT INTO rendelesek (asztal,tetelID,mennyiseg) "
+                + "VALUES(?,?,?);";
         try (Connection kapcs = DriverManager.getConnection(dbUrl, user, pass);
                 PreparedStatement parancs = kapcs.prepareStatement(s)) {
             parancs.setInt(1, asztal);
@@ -319,7 +321,8 @@ public class DB {
      * @param mennyiseg
      * @return
      */
-    public int rendeles_modosit(int rendelesID, int asztal, int tetel, int mennyiseg) {
+    public int rendeles_modosit(int rendelesID, int asztal, 
+                                int tetel, int mennyiseg) {
         String s = "UPDATE rendelesek SET asztal=?, tetelID=?, mennyiseg=? "
                  + "WHERE rendelesID=?";
         try (Connection kapcs = DriverManager.getConnection(dbUrl, user, pass);

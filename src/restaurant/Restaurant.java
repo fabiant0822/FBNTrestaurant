@@ -25,13 +25,16 @@ public class Restaurant extends javax.swing.JFrame {
      */
     public Restaurant() {
         initComponents();
+        // az ablak ikonjának beállítása
         ImageIcon ikon = new ImageIcon(getClass().getResource("my16.png"));
         setIconImage(ikon.getImage());
+        // táblázatok feltöltése
         ab = new DB();
         ab.asztal_be(tblTable_1, cbxTable_3, cbxTable_4);
         ab.tetelek_be(tblProduct_1, cbxProduct_3);
         ab.rendeles_be(tblOrder);
         ab.szamla_be(tblBill_1);
+        // valós idő beolvasása
         String s = LocalDateTime.now().toString();
         String date = s.substring(0, 10) + " " + s.substring(11, 19);
         txtDate_1.setText(date);
@@ -199,9 +202,9 @@ public class Restaurant extends javax.swing.JFrame {
       */
      public void kivalaszt() {
          int asz = Integer.parseInt(cbxTable_4.getSelectedItem().toString());
-         txtTeszt.setText(String.format("%,d", asz));
+         //txtTeszt.setText(String.format("%,d", asz));
      }
-     
+   
     /**
      * A modális "Súgó" dialógusablak meghívása.
      */
@@ -221,7 +224,8 @@ public class Restaurant extends javax.swing.JFrame {
         for (int i = 0; i < db; i++) {
             String s = tblProduct_1.getValueAt(i, 1).toString();
             if (nev.equals(s))
-                return Integer.parseInt(tblProduct_1.getValueAt(i, 2).toString());
+                return Integer.parseInt
+                (tblProduct_1.getValueAt(i, 2).toString());
         }
         return -1;
     }
@@ -352,8 +356,6 @@ public class Restaurant extends javax.swing.JFrame {
         cbxTable_4 = new javax.swing.JComboBox<>();
         jLabel19 = new javax.swing.JLabel();
         btnBill_4 = new javax.swing.JButton();
-        txtTeszt = new javax.swing.JTextField();
-        jLabel20 = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jmFile = new javax.swing.JMenu();
         jmbOpen = new javax.swing.JMenuItem();
@@ -1200,11 +1202,6 @@ public class Restaurant extends javax.swing.JFrame {
             }
         });
 
-        txtTeszt.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-
-        jLabel20.setText("teszt:");
-        jLabel20.setToolTipText("");
-
         javax.swing.GroupLayout jtpBillLayout = new javax.swing.GroupLayout(jtpBill);
         jtpBill.setLayout(jtpBillLayout);
         jtpBillLayout.setHorizontalGroup(
@@ -1241,11 +1238,7 @@ public class Restaurant extends javax.swing.JFrame {
                 .addComponent(cbxTable_4, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnBill_4, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel20)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(txtTeszt, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(43, 43, 43))
+                .addGap(43, 294, Short.MAX_VALUE))
         );
         jtpBillLayout.setVerticalGroup(
             jtpBillLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1254,9 +1247,7 @@ public class Restaurant extends javax.swing.JFrame {
                 .addGroup(jtpBillLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cbxTable_4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel19)
-                    .addComponent(btnBill_4)
-                    .addComponent(txtTeszt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel20))
+                    .addComponent(btnBill_4))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 366, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -1373,6 +1364,28 @@ public class Restaurant extends javax.swing.JFrame {
 //        megnyitas();
     }//GEN-LAST:event_jmbOpenActionPerformed
 
+    private void jmbSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmbSaveActionPerformed
+        mentes();
+    }//GEN-LAST:event_jmbSaveActionPerformed
+
+    private void jmbSaveasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmbSaveasActionPerformed
+        mentes();
+    }//GEN-LAST:event_jmbSaveasActionPerformed
+
+    private void btnBillActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBillActionPerformed
+        btn.setSelectedIndex(4);
+    }//GEN-LAST:event_btnBillActionPerformed
+
+    private void btnBill_4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBill_4ActionPerformed
+        //        int asz = Integer.parseInt(cbxTable_4.getSelectedItem().toString());
+        //        ab.szamla_lekerdez(tblBill_1, asz);
+                szumma_bill();
+    }//GEN-LAST:event_btnBill_4ActionPerformed
+
+    private void cbxTable_4ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbxTable_4ItemStateChanged
+        kivalaszt();
+    }//GEN-LAST:event_cbxTable_4ItemStateChanged
+
     /**
      * A tételek táblából törli a kijelölt sort.
      * @param evt 
@@ -1408,6 +1421,18 @@ public class Restaurant extends javax.swing.JFrame {
         txtProduct.requestFocus();
         txtProduct.selectAll();
     }//GEN-LAST:event_btnAdd_2ActionPerformed
+
+    /**
+     * A táblázatban a billentyűk használatának konfigurálása.
+     * @param evt 
+     */
+    private void tblProduct_1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tblProduct_1KeyReleased
+        if (evt.getKeyCode() == KeyEvent.VK_UP
+            || evt.getKeyCode() == KeyEvent.VK_DOWN
+            || evt.getKeyCode() == KeyEvent.VK_PAGE_UP
+            || evt.getKeyCode() == KeyEvent.VK_PAGE_DOWN)
+        tetelek_tablabol();
+    }//GEN-LAST:event_tblProduct_1KeyReleased
 
     /**
      * Egérkattintásra kimásolja az adott sort a beviteli mezőkbe.
@@ -1454,6 +1479,14 @@ public class Restaurant extends javax.swing.JFrame {
         txtTable.requestFocus();
         txtTable.selectAll();
     }//GEN-LAST:event_btnAdd_1ActionPerformed
+
+    private void tblTable_1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tblTable_1KeyReleased
+        if (evt.getKeyCode() == KeyEvent.VK_UP
+            || evt.getKeyCode() == KeyEvent.VK_DOWN
+            || evt.getKeyCode() == KeyEvent.VK_PAGE_UP
+            || evt.getKeyCode() == KeyEvent.VK_PAGE_DOWN)
+        asztalok_tablabol();
+    }//GEN-LAST:event_tblTable_1KeyReleased
 
     /**
      * Egérkattintásra kimásolja az adott sort a beviteli mezőkbe.
@@ -1536,6 +1569,14 @@ public class Restaurant extends javax.swing.JFrame {
         szumma();
     }//GEN-LAST:event_btnAdd_3ActionPerformed
 
+    private void tblOrderKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tblOrderKeyReleased
+        if (evt.getKeyCode() == KeyEvent.VK_UP
+            || evt.getKeyCode() == KeyEvent.VK_DOWN
+            || evt.getKeyCode() == KeyEvent.VK_PAGE_UP
+            || evt.getKeyCode() == KeyEvent.VK_PAGE_DOWN)
+        rendelesek_tablabol();
+    }//GEN-LAST:event_tblOrderKeyReleased
+
     /**
      * Egérkattintásra kimásolja az adott sort a beviteli mezőkbe.
      * @param evt 
@@ -1549,60 +1590,10 @@ public class Restaurant extends javax.swing.JFrame {
      * @param evt 
      */
     private void cbxProduct_3ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbxProduct_3ItemStateChanged
-//        String nev = (cbxProduct_3.getSelectedItem().toString());
-//        int ea = egysegar(nev);
-//        txtPrice_3.setText(ea+"");
+        //        String nev = (cbxProduct_3.getSelectedItem().toString());
+        //        int ea = egysegar(nev);
+        //        txtPrice_3.setText(ea+"");
     }//GEN-LAST:event_cbxProduct_3ItemStateChanged
-
-    private void jmbSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmbSaveActionPerformed
-        mentes();
-    }//GEN-LAST:event_jmbSaveActionPerformed
-
-    private void jmbSaveasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmbSaveasActionPerformed
-        mentes();
-    }//GEN-LAST:event_jmbSaveasActionPerformed
-
-    /**
-     * A táblázatban a billentyűk használatának konfigurálása.
-     * @param evt 
-     */
-    private void tblProduct_1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tblProduct_1KeyReleased
-        if (evt.getKeyCode() == KeyEvent.VK_UP 
-                || evt.getKeyCode() == KeyEvent.VK_DOWN
-                || evt.getKeyCode() == KeyEvent.VK_PAGE_UP
-                || evt.getKeyCode() == KeyEvent.VK_PAGE_DOWN)
-            tetelek_tablabol();
-    }//GEN-LAST:event_tblProduct_1KeyReleased
-
-    private void tblTable_1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tblTable_1KeyReleased
-        if (evt.getKeyCode() == KeyEvent.VK_UP 
-                || evt.getKeyCode() == KeyEvent.VK_DOWN
-                || evt.getKeyCode() == KeyEvent.VK_PAGE_UP
-                || evt.getKeyCode() == KeyEvent.VK_PAGE_DOWN)
-            asztalok_tablabol();
-    }//GEN-LAST:event_tblTable_1KeyReleased
-
-    private void tblOrderKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tblOrderKeyReleased
-        if (evt.getKeyCode() == KeyEvent.VK_UP 
-                || evt.getKeyCode() == KeyEvent.VK_DOWN
-                || evt.getKeyCode() == KeyEvent.VK_PAGE_UP
-                || evt.getKeyCode() == KeyEvent.VK_PAGE_DOWN)
-            rendelesek_tablabol();
-    }//GEN-LAST:event_tblOrderKeyReleased
-
-    private void btnBill_4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBill_4ActionPerformed
-//        int asz = Integer.parseInt(cbxTable_4.getSelectedItem().toString());
-//        ab.szamla_lekerdez(tblBill_1, asz);
-//        szumma_bill();
-    }//GEN-LAST:event_btnBill_4ActionPerformed
-
-    private void cbxTable_4ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbxTable_4ItemStateChanged
-        kivalaszt();
-    }//GEN-LAST:event_cbxTable_4ItemStateChanged
-
-    private void btnBillActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBillActionPerformed
-        btn.setSelectedIndex(4);
-    }//GEN-LAST:event_btnBillActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1660,7 +1651,6 @@ public class Restaurant extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel20;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -1705,7 +1695,6 @@ public class Restaurant extends javax.swing.JFrame {
     private javax.swing.JTextField txtSzum_1;
     private javax.swing.JTextField txtSzumall_1;
     private javax.swing.JTextField txtTable;
-    private javax.swing.JTextField txtTeszt;
     private javax.swing.JTextField txtTip_1;
     private javax.swing.JTextField txtUnit;
     // End of variables declaration//GEN-END:variables
