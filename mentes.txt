@@ -1,0 +1,14 @@
+1    | Almdudler 0,3 dl                                   | 3          | 1950      
+
+1    | Marha tatár, fűszervajjal és friss zöldségekkel    | 2          | 5200      
+
+1    | Kapros-savanyú káposztás borjúragu leves           | 3          | 2550      
+
+1    | Ropogós csülök pergelt bajorkáposztával            | 1          | 2200      
+
+1    | Szarvas java vadas mártásban                       | 1          | 3000      
+
+1    | Harcsapaprikás házi túrós csuszával                | 1          | 2300      
+
+1    | Szigeti mákos gőzgombóc, vanília sodóval           | 3          | 3900      
+
