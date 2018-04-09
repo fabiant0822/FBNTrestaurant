@@ -243,7 +243,8 @@ public class Restaurant extends javax.swing.JFrame {
     */
     private void mentes() {
         if (fcSave.showSaveDialog(this)==JFileChooser.APPROVE_OPTION) {
-            try (PrintWriter ki = new PrintWriter(fcSave.getSelectedFile(),"utf8")) {
+            try (PrintWriter ki = new PrintWriter
+                (fcSave.getSelectedFile(),"utf8")) {
                 int sordb = tblOrder.getRowCount();
                 for (int i = 0; i < sordb; i++) {
                     ki.printf("%-4s | %-50s | %-10s | %-10s\n\n", 
@@ -356,6 +357,7 @@ public class Restaurant extends javax.swing.JFrame {
         cbxTable_4 = new javax.swing.JComboBox<>();
         jLabel19 = new javax.swing.JLabel();
         btnBill_4 = new javax.swing.JButton();
+        btnSave_2 = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jmFile = new javax.swing.JMenu();
         jmbOpen = new javax.swing.JMenuItem();
@@ -366,6 +368,7 @@ public class Restaurant extends javax.swing.JFrame {
         jmbClose = new javax.swing.JMenuItem();
         jmOption = new javax.swing.JMenu();
         jmHelp = new javax.swing.JMenu();
+        jmbHelp = new javax.swing.JMenuItem();
 
         fcOpen.setApproveButtonMnemonic(77);
         fcOpen.setApproveButtonText("Megnyitás");
@@ -585,7 +588,7 @@ public class Restaurant extends javax.swing.JFrame {
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, true, true, true, true
+                false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -997,7 +1000,7 @@ public class Restaurant extends javax.swing.JFrame {
                 java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, true, true, true
+                false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -1139,7 +1142,7 @@ public class Restaurant extends javax.swing.JFrame {
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, true, true, true
+                false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -1202,6 +1205,15 @@ public class Restaurant extends javax.swing.JFrame {
             }
         });
 
+        btnSave_2.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        btnSave_2.setText("Ment");
+        btnSave_2.setToolTipText("");
+        btnSave_2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSave_2ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jtpBillLayout = new javax.swing.GroupLayout(jtpBill);
         jtpBill.setLayout(jtpBillLayout);
         jtpBillLayout.setHorizontalGroup(
@@ -1238,7 +1250,9 @@ public class Restaurant extends javax.swing.JFrame {
                 .addComponent(cbxTable_4, javax.swing.GroupLayout.PREFERRED_SIZE, 89, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnBill_4, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(43, 294, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnSave_2, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jtpBillLayout.setVerticalGroup(
             jtpBillLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1247,7 +1261,8 @@ public class Restaurant extends javax.swing.JFrame {
                 .addGroup(jtpBillLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cbxTable_4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel19)
-                    .addComponent(btnBill_4))
+                    .addComponent(btnBill_4)
+                    .addComponent(btnSave_2))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 366, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -1319,6 +1334,11 @@ public class Restaurant extends javax.swing.JFrame {
         jmbClose.setMnemonic('Z');
         jmbClose.setText("Bezárás");
         jmbClose.setToolTipText("");
+        jmbClose.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jmbCloseActionPerformed(evt);
+            }
+        });
         jmFile.add(jmbClose);
 
         jMenuBar1.add(jmFile);
@@ -1329,6 +1349,15 @@ public class Restaurant extends javax.swing.JFrame {
 
         jmHelp.setMnemonic('S');
         jmHelp.setText("Súgó");
+
+        jmbHelp.setText("About");
+        jmbHelp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jmbHelpActionPerformed(evt);
+            }
+        });
+        jmHelp.add(jmbHelp);
+
         jMenuBar1.add(jmHelp);
 
         setJMenuBar(jMenuBar1);
@@ -1393,7 +1422,8 @@ public class Restaurant extends javax.swing.JFrame {
     private void btn_Del_2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_Del_2ActionPerformed
         int i = tblProduct_1.getSelectedRow();
         if (i == -1) return;
-        ab.tetel_torol(Integer.parseInt(tblProduct_1.getValueAt(i, 0).toString()));
+        ab.tetel_torol(Integer.parseInt
+                        (tblProduct_1.getValueAt(i, 0).toString()));
         ab.tetelek_be(tblProduct_1, cbxProduct_3);
     }//GEN-LAST:event_btn_Del_2ActionPerformed
 
@@ -1415,7 +1445,8 @@ public class Restaurant extends javax.swing.JFrame {
      * @param evt 
      */
     private void btnAdd_2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd_2ActionPerformed
-        ab.tetel_hozzaad(txtProduct.getText(), Integer.parseInt(txtPrice.getText()), txtUnit.getText());
+        ab.tetel_hozzaad(txtProduct.getText(), 
+                Integer.parseInt(txtPrice.getText()), txtUnit.getText());
         ab.tetelek_be(tblProduct_1, cbxProduct_3);
         tetelek_max_kijelol();
         txtProduct.requestFocus();
@@ -1449,7 +1480,8 @@ public class Restaurant extends javax.swing.JFrame {
     private void btnDel_1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDel_1ActionPerformed
         int i = tblTable_1.getSelectedRow();
         if (i == -1) return;
-        ab.asztal_torol(Integer.parseInt(tblTable_1.getValueAt(i, 0).toString()));
+        ab.asztal_torol(Integer.parseInt
+                        (tblTable_1.getValueAt(i, 0).toString()));
         ab.asztal_be(tblTable_1, cbxTable_3, cbxTable_4);
     }//GEN-LAST:event_btnDel_1ActionPerformed
 
@@ -1473,7 +1505,8 @@ public class Restaurant extends javax.swing.JFrame {
      * @param evt 
      */
     private void btnAdd_1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAdd_1ActionPerformed
-        ab.asztal_hozzaad(Integer.parseInt(txtTable.getText()), Integer.parseInt(txtChair.getText()),txtPlace.getText());
+        ab.asztal_hozzaad(Integer.parseInt(txtTable.getText()), 
+                Integer.parseInt(txtChair.getText()),txtPlace.getText());
         ab.asztal_be(tblTable_1, cbxTable_3, cbxTable_4);
         asztal_max_kijelol();
         txtTable.requestFocus();
@@ -1519,7 +1552,8 @@ public class Restaurant extends javax.swing.JFrame {
     private void btnDel_3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDel_3ActionPerformed
         int i = tblOrder.getSelectedRow();
         if (i == -1) return;
-        ab.rendeles_torol(Integer.parseInt(tblOrder.getValueAt(i, 0).toString()));
+        ab.rendeles_torol(Integer.parseInt
+                            (tblOrder.getValueAt(i, 0).toString()));
         ab.rendeles_be(tblOrder);
         rendeles_max_kijelol();
         txtPiece_3.requestFocus();
@@ -1537,7 +1571,8 @@ public class Restaurant extends javax.swing.JFrame {
         String ttl = cbxProduct_3.getSelectedItem().toString();
         int p = get_tetelID(ttl);
         int rid = Integer.parseInt(tblOrder.getValueAt(i, 0).toString());
-        int n = ab.rendeles_modosit(rid, tbl, p, Integer.parseInt(txtPiece_3.getText()));
+        int n = ab.rendeles_modosit(rid, tbl, p, 
+                Integer.parseInt(txtPiece_3.getText()));
         String nev = (cbxProduct_3.getSelectedItem().toString());
         int ea = egysegar(nev);
         txtPrice_3.setText(ea+"");
@@ -1557,7 +1592,8 @@ public class Restaurant extends javax.swing.JFrame {
         int tbl = Integer.parseInt(cbxTable_3.getSelectedItem().toString());
         String ttl = cbxProduct_3.getSelectedItem().toString();
         int p = get_tetelID(ttl);
-        int n = ab.rendeles_hozzaad(tbl, p, Integer.parseInt(txtPiece_3.getText()));
+        int n = ab.rendeles_hozzaad(tbl, p, 
+                Integer.parseInt(txtPiece_3.getText()));
         String nev = (cbxProduct_3.getSelectedItem().toString());
         int ea = egysegar(nev);
         txtPrice_3.setText(ea+"");
@@ -1595,6 +1631,18 @@ public class Restaurant extends javax.swing.JFrame {
         //        txtPrice_3.setText(ea+"");
     }//GEN-LAST:event_cbxProduct_3ItemStateChanged
 
+    private void btnSave_2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSave_2ActionPerformed
+        mentes();
+    }//GEN-LAST:event_btnSave_2ActionPerformed
+
+    private void jmbCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmbCloseActionPerformed
+        System.exit(0);
+    }//GEN-LAST:event_jmbCloseActionPerformed
+
+    private void jmbHelpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmbHelpActionPerformed
+        help();
+    }//GEN-LAST:event_jmbHelpActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1628,6 +1676,7 @@ public class Restaurant extends javax.swing.JFrame {
     private javax.swing.JButton btnProfile;
     private javax.swing.JButton btnReport;
     private javax.swing.JButton btnSave_1;
+    private javax.swing.JButton btnSave_2;
     private javax.swing.JButton btnTable;
     private javax.swing.JButton btn_Del_2;
     private javax.swing.JComboBox<String> cbxProduct_3;
@@ -1669,6 +1718,7 @@ public class Restaurant extends javax.swing.JFrame {
     private javax.swing.JMenu jmHelp;
     private javax.swing.JMenu jmOption;
     private javax.swing.JMenuItem jmbClose;
+    private javax.swing.JMenuItem jmbHelp;
     private javax.swing.JMenuItem jmbOpen;
     private javax.swing.JMenuItem jmbSave;
     private javax.swing.JMenuItem jmbSaveas;
