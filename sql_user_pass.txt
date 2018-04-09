@@ -1,0 +1,3 @@
+GRANT SELECT, INSERT, UPDATE, DELETE, FILE ON *.* TO 'admin'@'%';
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON `etterem`.* TO 'admin'@'%';
