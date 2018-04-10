@@ -395,7 +395,7 @@ public class DB {
                  + "JOIN asztalok ON rendelesek.asztal=asztalok.asztal "
                  + "JOIN tetelek ON rendelesek.tetelID=tetelek.tetelID "
                  + "WHERE rendelesek.asztal=" + asz
-                 + "ORDER BY rendelesID;";
+                 + " ORDER BY rendelesID;";
 
         try (Connection kapcs = DriverManager.getConnection(dbUrl,user,pass);
              PreparedStatement parancs = kapcs.prepareStatement(s);

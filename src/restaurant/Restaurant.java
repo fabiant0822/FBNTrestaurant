@@ -33,7 +33,7 @@ public class Restaurant extends javax.swing.JFrame {
         ab.asztal_be(tblTable_1, cbxTable_3, cbxTable_4);
         ab.tetelek_be(tblProduct_1, cbxProduct_3);
         ab.rendeles_be(tblOrder);
-        ab.szamla_be(tblBill_1);
+        // ab.szamla_be(tblBill_1);
         // valós idő beolvasása
         String s = LocalDateTime.now().toString();
         String date = s.substring(0, 10) + " " + s.substring(11, 19);
@@ -1406,8 +1406,8 @@ public class Restaurant extends javax.swing.JFrame {
     }//GEN-LAST:event_btnBillActionPerformed
 
     private void btnBill_4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBill_4ActionPerformed
-        //        int asz = Integer.parseInt(cbxTable_4.getSelectedItem().toString());
-        //        ab.szamla_lekerdez(tblBill_1, asz);
+                int asz = Integer.parseInt(cbxTable_4.getSelectedItem().toString());
+                ab.szamla_lekerdez(tblBill_1, asz);
                 szumma_bill();
     }//GEN-LAST:event_btnBill_4ActionPerformed
 
